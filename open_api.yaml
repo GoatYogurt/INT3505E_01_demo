@@ -1,8 +1,10 @@
 openapi: 3.0.3
 info:
-  title: Book API
-  version: 1.0.0
-  description: A simple RESTful API for managing books.
+  title: Library Book API
+  version: 1.1.0
+  description: >
+    A simple RESTful API for managing a library's books.
+    Includes endpoints for borrowing and returning books with token-based authentication.
 
 servers:
   - url: http://localhost:5000
@@ -12,10 +14,10 @@ paths:
   /books:
     get:
       summary: Get all books
-      description: Returns a list of all books in the library.
+      description: Retrieve a list of all books.
       responses:
         '200':
-          description: A list of books.
+          description: A list of all books.
           content:
             application/json:
               schema:
@@ -25,7 +27,7 @@ paths:
 
     post:
       summary: Add a new book
-      description: Creates a new book and returns the created book.
+      description: Create a new book entry in the library.
       requestBody:
         required: true
         content:
@@ -43,14 +45,9 @@ paths:
   /books/{id}:
     get:
       summary: Get a book by ID
-      description: Returns a single book by its ID.
+      description: Retrieve information for a specific book.
       parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID of the book to retrieve.
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/BookId'
       responses:
         '200':
           description: The requested book.
@@ -67,14 +64,9 @@ paths:
 
     put:
       summary: Update a book
-      description: Updates the details of a specific book by ID.
+      description: Update details of a specific book.
       parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID of the book to update.
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/BookId'
       requestBody:
         required: true
         content:
@@ -97,14 +89,9 @@ paths:
 
     delete:
       summary: Delete a book
-      description: Deletes a book by ID.
+      description: Delete a book by its ID.
       parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID of the book to delete.
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/BookId'
       responses:
         '200':
           description: Book deleted successfully.
@@ -123,7 +110,106 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /books/{id}/borrow:
+    post:
+      summary: Borrow a book
+      description: >
+        Borrow a book by ID. Requires a valid user token in the Authorization header.
+      parameters:
+        - $ref: '#/components/parameters/BookId'
+        - $ref: '#/components/parameters/AuthHeader'
+      responses:
+        '200':
+          description: Book borrowed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: alice borrowed 'Nguyên lý Máy học'
+                  book:
+                    $ref: '#/components/schemas/Book'
+        '400':
+          description: Book is already borrowed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid or missing token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Book not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /books/{id}/return:
+    post:
+      summary: Return a book
+      description: >
+        Return a borrowed book by ID. Requires a valid user token in the Authorization header.
+      parameters:
+        - $ref: '#/components/parameters/BookId'
+        - $ref: '#/components/parameters/AuthHeader'
+      responses:
+        '200':
+          description: Book returned successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: bob returned 'Hệ điều hành'
+                  book:
+                    $ref: '#/components/schemas/Book'
+        '400':
+          description: Book was not borrowed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid or missing token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Book not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 components:
+  parameters:
+    BookId:
+      name: id
+      in: path
+      required: true
+      description: The ID of the book.
+      schema:
+        type: integer
+        example: 1
+
+    AuthHeader:
+      name: Authorization
+      in: header
+      required: true
+      description: User token for authentication (e.g., `alice` or `bob`).
+      schema:
+        type: string
+        example: alice
+
   schemas:
     Book:
       type: object
@@ -133,22 +219,22 @@ components:
           example: 1
         title:
           type: string
-          example: The Great Gatsby
+          example: Nguyên lý Máy học
         author:
           type: string
-          example: F. Scott Fitzgerald
+          example: Phạm Duy D
         year:
           type: integer
-          example: 1925
+          example: 2022
         publisher:
           type: string
-          example: Scribner
+          example: NXB Thông tin và Truyền thông
         genre:
           type: string
-          example: Fiction
+          example: Artificial Intelligence
         isbn:
           type: string
-          example: 9780743273565
+          example: 978-604-456-789-0
         available:
           type: boolean
           example: true
