@@ -1,20 +1,26 @@
 openapi: 3.0.3
 info:
-  title: Library Book API
+  title: Book Library API
   version: 1.1.0
   description: >
-    A simple RESTful API for managing a library's books.
-    Includes endpoints for borrowing and returning books with token-based authentication.
+    A simple RESTful API for managing books, including borrowing and returning operations.
 
 servers:
   - url: http://localhost:5000
     description: Local development server
 
+tags:
+  - name: Books
+    description: Operations related to book management
+  - name: Borrowing
+    description: Operations for borrowing and returning books
+
 paths:
   /books:
     get:
+      tags: [Books]
       summary: Get all books
-      description: Retrieve a list of all books.
+      description: Retrieve a list of all books in the library.
       responses:
         '200':
           description: A list of all books.
@@ -26,8 +32,9 @@ paths:
                   $ref: '#/components/schemas/Book'
 
     post:
+      tags: [Books]
       summary: Add a new book
-      description: Create a new book entry in the library.
+      description: Create a new book entry and return the created resource.
       requestBody:
         required: true
         content:
@@ -44,8 +51,9 @@ paths:
 
   /books/{id}:
     get:
+      tags: [Books]
       summary: Get a book by ID
-      description: Retrieve information for a specific book.
+      description: Retrieve a single book's details by its ID.
       parameters:
         - $ref: '#/components/parameters/BookId'
       responses:
@@ -63,8 +71,9 @@ paths:
                 $ref: '#/components/schemas/Error'
 
     put:
+      tags: [Books]
       summary: Update a book
-      description: Update details of a specific book.
+      description: Update the details of a specific book.
       parameters:
         - $ref: '#/components/parameters/BookId'
       requestBody:
@@ -88,8 +97,9 @@ paths:
                 $ref: '#/components/schemas/Error'
 
     delete:
+      tags: [Books]
       summary: Delete a book
-      description: Delete a book by its ID.
+      description: Delete a book by ID.
       parameters:
         - $ref: '#/components/parameters/BookId'
       responses:
@@ -112,9 +122,9 @@ paths:
 
   /books/{id}/borrow:
     post:
+      tags: [Borrowing]
       summary: Borrow a book
-      description: >
-        Borrow a book by ID. Requires a valid user token in the Authorization header.
+      description: Borrow a book by ID. Requires a valid token in the Authorization header.
       parameters:
         - $ref: '#/components/parameters/BookId'
         - $ref: '#/components/parameters/AuthHeader'
@@ -128,17 +138,17 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: alice borrowed 'Nguyên lý Máy học'
+                    example: user123 borrowed 'Cấu trúc dữ liệu và Giải thuật'
                   book:
                     $ref: '#/components/schemas/Book'
         '400':
-          description: Book is already borrowed.
+          description: Book already borrowed.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '401':
-          description: Invalid or missing token.
+          description: Missing or invalid token.
           content:
             application/json:
               schema:
@@ -152,9 +162,9 @@ paths:
 
   /books/{id}/return:
     post:
-      summary: Return a book
-      description: >
-        Return a borrowed book by ID. Requires a valid user token in the Authorization header.
+      tags: [Borrowing]
+      summary: Return a borrowed book
+      description: Return a borrowed book by ID. Requires a valid token.
       parameters:
         - $ref: '#/components/parameters/BookId'
         - $ref: '#/components/parameters/AuthHeader'
@@ -168,7 +178,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: bob returned 'Hệ điều hành'
+                    example: user123 returned 'Cấu trúc dữ liệu và Giải thuật'
                   book:
                     $ref: '#/components/schemas/Book'
         '400':
@@ -178,7 +188,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '401':
-          description: Invalid or missing token.
+          description: Missing or invalid token.
           content:
             application/json:
               schema:
@@ -205,10 +215,10 @@ components:
       name: Authorization
       in: header
       required: true
-      description: User token for authentication (e.g., `alice` or `bob`).
+      description: Bearer token for authentication.
       schema:
         type: string
-        example: alice
+        example: Bearer abcdef123456
 
   schemas:
     Book:
@@ -219,31 +229,29 @@ components:
           example: 1
         title:
           type: string
-          example: Nguyên lý Máy học
+          example: Cấu trúc dữ liệu và Giải thuật
         author:
           type: string
-          example: Phạm Duy D
+          example: Nguyễn Văn A
         year:
           type: integer
-          example: 2022
+          example: 2021
         publisher:
           type: string
-          example: NXB Thông tin và Truyền thông
+          example: NXB Giáo dục
         genre:
           type: string
-          example: Artificial Intelligence
+          example: Computer Science
         isbn:
           type: string
-          example: 978-604-456-789-0
+          example: 978-604-123-456-7
         available:
           type: boolean
           example: true
 
     NewBook:
       type: object
-      required:
-        - title
-        - author
+      required: [title, author]
       properties:
         title:
           type: string
