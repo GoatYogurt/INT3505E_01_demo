@@ -1,7 +1,6 @@
 # app/routes/auth.py
 from flask import Blueprint, current_app, request, jsonify
 import jwt, datetime
-from app.utils.jwt_utils import token_required
 from app.data.sample_data import users
 
 auth_bp = Blueprint('auth', __name__)
@@ -13,11 +12,14 @@ def login():
     password = data.get("password")
     if not username or not password:
         return jsonify({"error": "Username and password required"}), 400
-    if users.get(username) != password:
+    if any(u.username == username and u.password == password for u in users):
+        pass
+    else:
         return jsonify({"error": "Invalid credentials"}), 401
 
     token = jwt.encode({
         'username': username,
+        'role': next(u.role for u in users if u.username == username),
         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
     }, current_app.config['SECRET_KEY'], algorithm="HS256")
     return jsonify({"token": token})

@@ -1,6 +1,6 @@
 # app/routes/books.py
 from flask import Blueprint, jsonify, request
-from app.utils.jwt_utils import token_required
+from app.utils.jwt_utils import token_required, requires_role
 from app.data.sample_data import books
 
 books_bp = Blueprint('books', __name__)
@@ -21,6 +21,7 @@ def get_book(id):
 
 @books_bp.route('/', methods=['POST'])
 @token_required
+@requires_role('admin')
 def add_book(current_user):
     data = request.get_json()
     new_book = {
@@ -47,6 +48,7 @@ def borrow_book(current_user, id):
         return jsonify({"error": "Book is already borrowed"}), 400
     book["available"] = False
     return jsonify({"message": f"{current_user} borrowed '{book['title']}'", "book": book})
+
 
 @books_bp.route('/<int:id>/return', methods=['POST'])
 @token_required
