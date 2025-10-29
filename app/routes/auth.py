@@ -1,8 +1,8 @@
 # app/routes/auth.py
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, current_app, request, jsonify
 import jwt, datetime
 from app.utils.jwt_utils import token_required
-from app.data.sample_books import users
+from app.data.sample_data import users
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -19,5 +19,5 @@ def login():
     token = jwt.encode({
         'username': username,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-    }, 'your_secret_key_here', algorithm="HS256")
+    }, current_app.config['SECRET_KEY'], algorithm="HS256")
     return jsonify({"token": token})

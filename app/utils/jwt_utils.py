@@ -1,5 +1,5 @@
 # app/utils/jwt_utils.py
-from flask import request, jsonify
+from flask import request, jsonify, current_app
 import jwt
 from functools import wraps
 
@@ -12,7 +12,7 @@ def token_required(f):
         if token.startswith("Bearer "):
             token = token[7:]
         try:
-            data = jwt.decode(token, 'your_secret_key_here', algorithms=["HS256"])
+            data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
             current_user = data['username']
         except:
             return jsonify({"error": "Token is invalid"}), 401
