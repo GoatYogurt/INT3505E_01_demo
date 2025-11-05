@@ -11,5 +11,6 @@ books = [
 
 users = {
     User("admin", "admin123", "admin"),
-    User("user1", "user123")
+    User("user", "user123", "user"),
+    User("guest", "guest123", "guest")
 }

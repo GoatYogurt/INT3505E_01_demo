@@ -12,6 +12,7 @@ def login():
     password = data.get("password")
     if not username or not password:
         return jsonify({"error": "Username and password required"}), 400
+    
     if any(u.username == username and u.password == password for u in users):
         pass
     else:
