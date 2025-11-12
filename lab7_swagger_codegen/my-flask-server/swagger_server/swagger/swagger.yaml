@@ -1,0 +1,452 @@
+---
+swagger: "2.0"
+info:
+  description: "API for managing books in a library"
+  version: "1.0"
+  title: "My Library API"
+basePath: "/"
+produces:
+- "application/json"
+paths:
+  /books/:
+    get:
+      tags:
+      - "Books"
+      summary: "Get a list of all books"
+      description: "Returns a complete list of all books in the library.<br/>"
+      operationId: "books_get"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "A list of books."
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/inline_response_200"
+      x-swagger-router-controller: "swagger_server.controllers.books_controller"
+    post:
+      tags:
+      - "Books"
+      summary: "Add a new book (Admin only)"
+      description: "Creates a new book and adds it to the library. Requires admin\
+        \ privileges.<br/>"
+      operationId: "books_post"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "The book to create."
+        required: true
+        schema:
+          $ref: "#/definitions/body"
+      security:
+      - ApiKeyAuth: []
+      responses:
+        "201":
+          description: "Book created successfully."
+          schema:
+            $ref: "#/definitions/inline_response_201"
+        "401":
+          description: "Unauthorized (Token is missing or invalid)"
+        "403":
+          description: "Forbidden (User is not an admin)"
+      x-swagger-router-controller: "swagger_server.controllers.books_controller"
+  /books/{id}:
+    get:
+      tags:
+      - "Books"
+      summary: "Get a single book by ID"
+      description: "Returns details for a specific book.<br/>"
+      operationId: "books_id_get"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "The ID of the book to retrieve."
+        required: true
+        type: "integer"
+      responses:
+        "200":
+          description: "The requested book."
+          schema:
+            $ref: "#/definitions/inline_response_200"
+        "404":
+          description: "Book not found."
+          schema:
+            $ref: "#/definitions/inline_response_404"
+      x-swagger-router-controller: "swagger_server.controllers.books_controller"
+  /books/{id}/borrow:
+    post:
+      tags:
+      - "Books"
+      summary: "Borrow an available book"
+      description: "Marks a book as 'unavailable' (borrowed). Requires 'user' or 'admin'\
+        \ role.<br/>"
+      operationId: "books_id_borrow_post"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "The ID of the book to borrow."
+        required: true
+        type: "integer"
+      security:
+      - ApiKeyAuth: []
+      responses:
+        "200":
+          description: "Book borrowed successfully."
+          schema:
+            $ref: "#/definitions/inline_response_200_1"
+        "400":
+          description: "Book is already borrowed."
+          schema:
+            $ref: "#/definitions/inline_response_400"
+        "401":
+          description: "Unauthorized (Token is missing or invalid)"
+        "403":
+          description: "Forbidden (User role is incorrect)"
+        "404":
+          description: "Book not found."
+          schema:
+            $ref: "#/definitions/inline_response_404"
+      x-swagger-router-controller: "swagger_server.controllers.books_controller"
+  /books/{id}/return:
+    post:
+      tags:
+      - "Books"
+      summary: "Return a borrowed book"
+      description: "Marks a book as 'available' (returned). Requires 'user' or 'admin'\
+        \ role.<br/>"
+      operationId: "books_id_return_post"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "The ID of the book to return."
+        required: true
+        type: "integer"
+      security:
+      - ApiKeyAuth: []
+      responses:
+        "200":
+          description: "Book returned successfully."
+          schema:
+            $ref: "#/definitions/inline_response_200_2"
+        "400":
+          description: "Book is not borrowed."
+          schema:
+            $ref: "#/definitions/inline_response_400_1"
+        "401":
+          description: "Unauthorized (Token is missing or invalid)"
+        "403":
+          description: "Forbidden (User role is incorrect)"
+        "404":
+          description: "Book not found."
+          schema:
+            $ref: "#/definitions/inline_response_404"
+      x-swagger-router-controller: "swagger_server.controllers.books_controller"
+  /login:
+    post:
+      tags:
+      - "Authentication"
+      summary: "Log in a user"
+      description: "This endpoint authenticates a user based on username and password.<br/>"
+      operationId: "login_post"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "User credentials needed for login."
+        required: true
+        schema:
+          $ref: "#/definitions/body_1"
+      responses:
+        "200":
+          description: "Login successful. A JWT token is returned."
+          schema:
+            $ref: "#/definitions/inline_response_200_3"
+        "400":
+          description: "Bad Request. Username or password was not provided."
+          schema:
+            $ref: "#/definitions/inline_response_400_2"
+        "401":
+          description: "Unauthorized. Invalid credentials."
+          schema:
+            $ref: "#/definitions/inline_response_401"
+      x-swagger-router-controller: "swagger_server.controllers.authentication_controller"
+securityDefinitions:
+  ApiKeyAuth:
+    description: "JWT Token, typically 'Bearer <token>'. Enter just the token or 'Bearer\
+      \ <token>'."
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
+    x-apikeyInfoFunc: "swagger_server.controllers.authorization_controller.check_ApiKeyAuth"
+definitions:
+  inline_response_200:
+    type: "object"
+    properties:
+      author:
+        type: "string"
+        example: "F. Scott Fitzgerald"
+      available:
+        type: "boolean"
+        example: true
+      genre:
+        type: "string"
+        example: "Fiction"
+      id:
+        type: "integer"
+        example: 1
+      isbn:
+        type: "string"
+        example: "978-0743273565"
+      publisher:
+        type: "string"
+        example: "Scribner"
+      title:
+        type: "string"
+        example: "The Great Gatsby"
+      year:
+        type: "integer"
+        example: 1925
+    example:
+      year: 1925
+      author: "F. Scott Fitzgerald"
+      isbn: "978-0743273565"
+      available: true
+      genre: "Fiction"
+      publisher: "Scribner"
+      id: 1
+      title: "The Great Gatsby"
+  body:
+    type: "object"
+    required:
+    - "author"
+    - "title"
+    properties:
+      author:
+        type: "string"
+        example: "George Orwell"
+      genre:
+        type: "string"
+        example: "Dystopian"
+      isbn:
+        type: "string"
+        example: "978-0451524935"
+      publisher:
+        type: "string"
+        example: "Secker & Warburg"
+      title:
+        type: "string"
+        example: "1984"
+      year:
+        type: "integer"
+        example: 1949
+  inline_response_201:
+    type: "object"
+    properties:
+      author:
+        type: "string"
+        example: "George Orwell"
+      available:
+        type: "boolean"
+        example: true
+      genre:
+        type: "string"
+        example: "Dystopian"
+      id:
+        type: "integer"
+        example: 1
+      isbn:
+        type: "string"
+        example: "978-0451524935"
+      publisher:
+        type: "string"
+        example: "Secker & Warburg"
+      title:
+        type: "string"
+        example: "1984"
+      year:
+        type: "integer"
+        example: 1949
+    example:
+      year: 1949
+      author: "George Orwell"
+      isbn: "978-0451524935"
+      available: true
+      genre: "Dystopian"
+      publisher: "Secker & Warburg"
+      id: 1
+      title: "1984"
+  inline_response_404:
+    type: "object"
+    properties:
+      error:
+        type: "string"
+        example: "Book not found"
+  inline_response_200_1_book:
+    type: "object"
+    properties:
+      author:
+        type: "string"
+        example: "George Orwell"
+      available:
+        type: "boolean"
+        example: false
+      genre:
+        type: "string"
+        example: "Dystopian"
+      id:
+        type: "integer"
+        example: 1
+      isbn:
+        type: "string"
+        example: "978-0451524935"
+      publisher:
+        type: "string"
+        example: "Secker & Warburg"
+      title:
+        type: "string"
+        example: "1984"
+      year:
+        type: "integer"
+        example: 1949
+    example:
+      year: 1949
+      author: "George Orwell"
+      isbn: "978-0451524935"
+      available: false
+      genre: "Dystopian"
+      publisher: "Secker & Warburg"
+      id: 1
+      title: "1984"
+  inline_response_200_1:
+    type: "object"
+    properties:
+      book:
+        $ref: "#/definitions/inline_response_200_1_book"
+      message:
+        type: "string"
+        example: "Borrowed '1984'"
+    example:
+      book:
+        year: 1949
+        author: "George Orwell"
+        isbn: "978-0451524935"
+        available: false
+        genre: "Dystopian"
+        publisher: "Secker & Warburg"
+        id: 1
+        title: "1984"
+      message: "Borrowed '1984'"
+  inline_response_400:
+    type: "object"
+    properties:
+      error:
+        type: "string"
+        example: "Book is already borrowed"
+  inline_response_200_2_book:
+    type: "object"
+    properties:
+      author:
+        type: "string"
+        example: "George Orwell"
+      available:
+        type: "boolean"
+        example: true
+      genre:
+        type: "string"
+      id:
+        type: "integer"
+        example: 1
+      isbn:
+        type: "string"
+        example: "978-0451524935"
+      publisher:
+        type: "string"
+        example: "Secker & Warburg"
+      title:
+        type: "string"
+        example: "1984"
+      year:
+        type: "integer"
+        example: 1949
+    example:
+      year: 1949
+      author: "George Orwell"
+      isbn: "978-0451524935"
+      available: true
+      genre: "genre"
+      publisher: "Secker & Warburg"
+      id: 1
+      title: "1984"
+  inline_response_200_2:
+    type: "object"
+    properties:
+      book:
+        $ref: "#/definitions/inline_response_200_2_book"
+      message:
+        type: "string"
+        example: "Returned '1984'"
+    example:
+      book:
+        year: 1949
+        author: "George Orwell"
+        isbn: "978-0451524935"
+        available: true
+        genre: "genre"
+        publisher: "Secker & Warburg"
+        id: 1
+        title: "1984"
+      message: "Returned '1984'"
+  inline_response_400_1:
+    type: "object"
+    properties:
+      error:
+        type: "string"
+        example: "Book is not borrowed"
+  body_1:
+    type: "object"
+    required:
+    - "password"
+    - "username"
+    properties:
+      password:
+        type: "string"
+        format: "password"
+        example: "adminpass"
+      username:
+        type: "string"
+        example: "admin"
+  inline_response_200_3:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2Vybm..."
+    example:
+      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2Vybm..."
+  inline_response_400_2:
+    type: "object"
+    properties:
+      error:
+        type: "string"
+        example: "Username and password required"
+  inline_response_401:
+    type: "object"
+    properties:
+      error:
+        type: "string"
+        example: "Invalid credentials"

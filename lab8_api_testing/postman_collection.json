@@ -1,0 +1,453 @@
+{
+	"info": {
+		"_postman_id": "ce64b133-e8f0-418b-bb6e-c97fd8fc51e8",
+		"name": "RESTful Library",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40466421",
+		"_collection_link": "https://lively-escape-414551.postman.co/workspace/My-Workspace~a5038fc7-4977-4771-8e18-2950b44587f1/collection/40466421-ce64b133-e8f0-418b-bb6e-c97fd8fc51e8?action=share&source=collection_link&creator=40466421"
+	},
+	"item": [
+		{
+			"name": "login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"admin\",\r\n    \"password\": \"admin123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// check for a successful 200 OK status\r",
+							"pm.test(\"Status code is 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// check if the response is JSON\r",
+							"pm.test(\"Response is valid JSON\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"// check that the response is an array\r",
+							"pm.test(\"Response body is an array\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.be.an('array');\r",
+							"});\r",
+							"\r",
+							"// check is the array is not empty\r",
+							"pm.test(\"Books array is not empty\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.not.be.empty;\r",
+							"});\r",
+							"\r",
+							"// check the structure of the first book\r",
+							"pm.test(\"First book has 'id' and 'title' properties\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    // the array has at least one item before testing it\r",
+							"    if (jsonData.length > 0) {\r",
+							"        let firstBook = jsonData[0];\r",
+							"        pm.expect(firstBook).to.have.property('id');\r",
+							"        pm.expect(firstBook).to.have.property('title');\r",
+							"        // You could even check the data type\r",
+							"        pm.expect(firstBook.title).to.be.a('string');\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/books",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get by id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response is valid JSON\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Book ID matches the requested ID\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.id).to.eql(\"690c5543bed6de9043c8acec\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body has required properties (title, author, year)\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"title\");\r",
+							"    pm.expect(jsonData).to.have.property(\"author\");\r",
+							"    pm.expect(jsonData).to.have.property(\"year\");\r",
+							"    \r",
+							"    // You can also check the type\r",
+							"    pm.expect(jsonData.title).to.be.a('string');\r",
+							"    pm.expect(jsonData.year).to.be.a('number');\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseUrl}}/books/690c5543bed6de9043c8acec",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books",
+						"690c5543bed6de9043c8acec"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "post new item",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// check for 201 created status\r",
+							"pm.test(\"Status code is 201 Created\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"// check for valid JSON\r",
+							"pm.test(\"Response is valid JSON\", function () {\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"// check the created book details match the body sent\r",
+							"pm.test(\"Response body contains the correct book data\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    \r",
+							"    pm.expect(jsonData.title).to.eql(\"still another book\");\r",
+							"    pm.expect(jsonData.author).to.eql(\"Doan Minh Quan\");\r",
+							"    pm.expect(jsonData.year).to.eql(2025);\r",
+							"    pm.expect(jsonData.genre).to.eql(\"test\");\r",
+							"});\r",
+							"\r",
+							"// check that the API returned a new 'id' for the created book\r",
+							"pm.test(\"Response includes a server-generated 'id'\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    \r",
+							"    pm.expect(jsonData).to.have.property('id');\r",
+							"    pm.expect(jsonData.id).to.not.be.null; // check it's not null or undefined\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"still another book\",\r\n    \"author\": \"Doan Minh Quan\",\r\n    \"year\": 2025,\r\n    \"publisher\": \"test\",\r\n    \"genre\": \"test\",\r\n    \"isbn\": \"1234-5678-4321-1\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/books",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update by id",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"author\": \"Nguyễn Văn B\",\r\n    \"available\": true,\r\n    \"genre\": \"Computer Science\",\r\n    \"id\": 1,\r\n    \"isbn\": \"978-604-123-456-7\",\r\n    \"publisher\": \"NXB Giáo dục\",\r\n    \"title\": \"Cấu trúc dữ liệu và Giải thuật\",\r\n    \"year\": 2021\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/books/690c5543bed6de9043c8acec",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books",
+						"690c5543bed6de9043c8acec"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "borrow",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// check for a 200 OK status\r",
+							"pm.test(\"Status code is 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// check for a specific \"success\" message\r",
+							"pm.test(\"Response contains success message\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.message).to.include(\"Borrowed\");\r",
+							"});\r",
+							"\r",
+							"// check if the book status is updated\r",
+							"pm.test(\"Book's availability is now false\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.book.available).to.eql(false); \r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"test\",\r\n    \"author\": \"Doan Minh Quan\",\r\n    \"year\": 2025,\r\n    \"publisher\": \"test\",\r\n    \"genre\": \"test\",\r\n    \"isbn\": \"1234-5678-4321-1\"\r\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/books/690c5543bed6de9043c8acec/borrow",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books",
+						"690c5543bed6de9043c8acec",
+						"borrow"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "return",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// check for a 200 OK status\r",
+							"pm.test(\"Status code is 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// check for a specific \"success\" message\r",
+							"pm.test(\"Response contains success message\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.message).to.include(\"Returned\");\r",
+							"});\r",
+							"\r",
+							"// check if the book status is updated\r",
+							"pm.test(\"Book's availability is now true\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.book.available).to.eql(true);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"test\",\r\n    \"author\": \"Doan Minh Quan\",\r\n    \"year\": 2025,\r\n    \"publisher\": \"test\",\r\n    \"genre\": \"test\",\r\n    \"isbn\": \"1234-5678-4321-1\"\r\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/books/690c5543bed6de9043c8acec/return",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books",
+						"690c5543bed6de9043c8acec",
+						"return"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

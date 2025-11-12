@@ -1,0 +1,19 @@
+# coding: utf-8
+
+# flake8: noqa
+from __future__ import absolute_import
+# import models into model package
+from swagger_server.models.body import Body
+from swagger_server.models.body1 import Body1
+from swagger_server.models.inline_response200 import InlineResponse200
+from swagger_server.models.inline_response2001 import InlineResponse2001
+from swagger_server.models.inline_response2001_book import InlineResponse2001Book
+from swagger_server.models.inline_response2002 import InlineResponse2002
+from swagger_server.models.inline_response2002_book import InlineResponse2002Book
+from swagger_server.models.inline_response2003 import InlineResponse2003
+from swagger_server.models.inline_response201 import InlineResponse201
+from swagger_server.models.inline_response400 import InlineResponse400
+from swagger_server.models.inline_response4001 import InlineResponse4001
+from swagger_server.models.inline_response4002 import InlineResponse4002
+from swagger_server.models.inline_response401 import InlineResponse401
+from swagger_server.models.inline_response404 import InlineResponse404
