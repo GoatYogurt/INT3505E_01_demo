@@ -384,7 +384,7 @@
                       "type": "boolean"
                     },
                     "genre": {
-                      "example:Z \"Dystopian\"": null,
+                      "example": "Dystopian",
                       "type": "string"
                     },
                     "id": {
