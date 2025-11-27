@@ -3,7 +3,6 @@ from flasgger import Swagger
 
 app = create_app()
 
-# 1. Define the Swagger UI configuration
 swagger_config = {
     "headers": [],
     "specs": [
@@ -19,7 +18,6 @@ swagger_config = {
     "specs_route": "/apidocs/"
 }
 
-# 2. Define the security definitions for the "Authorize" button
 template = {
     "swagger": "2.0",
     "info": {
@@ -43,7 +41,6 @@ template = {
     # -----------------------------------
 }
 
-# 3. Initialize Flasgger with the config and template
 swagger = Swagger(app, config=swagger_config, template=template)
 
 if __name__ == "__main__":

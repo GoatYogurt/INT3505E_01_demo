@@ -5,7 +5,7 @@ from app.data.sample_data import books
 from pymongo import MongoClient
 from bson import ObjectId
 
-books_bp = Blueprint('books', __name__)
+books_v1 = Blueprint('books_v1', __name__, url_prefix='/v1/books')
 client = MongoClient('mongodb://localhost:27017/')
 db = client['library_db']
 books_collection = db['books']
@@ -23,14 +23,14 @@ def serialize_book(book):
         "available": book.get("available", True)
     }
 
-@books_bp.route('/', methods=['GET'])
+@books_v1.route('/', methods=['GET'])
 def get_books():
     """
     Get a list of all books
     Returns a complete list of all books in the library.
     ---
     tags:
-      - Books
+      - Books_v1
     produces:
       - application/json
     responses:
@@ -54,14 +54,14 @@ def get_books():
     return jsonify([serialize_book(b) for b in books])
 
 
-@books_bp.route('/<string:id>', methods=['GET'])
+@books_v1.route('/<string:id>', methods=['GET'])
 def get_book(id):
     """
     Get a single book by ID
     Returns details for a specific book.
     ---
     tags:
-      - Books
+      - Books_v1
     produces:
       - application/json
     parameters:
@@ -104,7 +104,7 @@ def get_book(id):
     return jsonify(serialize_book(book))
 
 
-@books_bp.route('/', methods=['POST'])
+@books_v1.route('/', methods=['POST'])
 @token_required
 @requires_role('admin')
 def add_book():
@@ -113,7 +113,7 @@ def add_book():
     Creates a new book and adds it to the library. Requires admin privileges.
     ---
     tags:
-      - Books
+      - Books_v1
     consumes:
       - application/json
     produces:
@@ -180,7 +180,7 @@ def add_book():
     return jsonify(serialize_book(new_book)), 201
 
 
-@books_bp.route('/<string:id>', methods=['PUT'])
+@books_v1.route('/<string:id>', methods=['PUT'])
 @token_required
 @requires_role('admin')
 def update_book(id):
@@ -189,7 +189,7 @@ def update_book(id):
     Updates details of an existing book. Requires admin privileges.
     ---
     tags:
-      - Books
+      - Books_v1
     consumes:
       - application/json
     produces:
@@ -255,7 +255,7 @@ def update_book(id):
     book.update(updated_fields)
     return jsonify(serialize_book(book))
 
-@books_bp.route('/<string:id>', methods=['DELETE'])
+@books_v1.route('/<string:id>', methods=['DELETE'])
 @token_required
 @requires_role('admin')
 def delete_book(id):
@@ -264,7 +264,7 @@ def delete_book(id):
     Deletes a book from the library. Requires admin privileges.
     ---
     tags:
-      - Books
+      - Books_v1
     produces:
       - application/json
     security:
@@ -307,7 +307,7 @@ def delete_book(id):
     return jsonify({"message": "Book deleted successfully"})
 
 
-@books_bp.route('/<string:id>/borrow', methods=['POST'])
+@books_v1.route('/<string:id>/borrow', methods=['POST'])
 @token_required
 @requires_role('user', 'admin')
 def borrow_book(id):
@@ -316,7 +316,7 @@ def borrow_book(id):
     Marks a book as 'unavailable' (borrowed). Requires 'user' or 'admin' role.
     ---
     tags:
-      - Books
+      - Books_v1
     produces:
       - application/json
     security:
@@ -381,7 +381,7 @@ def borrow_book(id):
     return jsonify({"message": f"Borrowed '{book['title']}'", "book": serialize_book(book)})
 
 
-@books_bp.route('/<string:id>/return', methods=['POST'])
+@books_v1.route('/<string:id>/return', methods=['POST'])
 @token_required
 @requires_role('user', 'admin')
 def return_book(id):
@@ -390,7 +390,7 @@ def return_book(id):
     Marks a book as 'available' (returned). Requires 'user' or 'admin' role.
     ---
     tags:
-      - Books
+      - Books_v1
     produces:
       - application/json
     security:
