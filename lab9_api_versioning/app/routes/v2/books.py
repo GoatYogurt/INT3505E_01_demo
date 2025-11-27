@@ -20,7 +20,8 @@ def serialize_book(book):
         "publisher": book.get("publisher"),
         "genre": book.get("genre"),
         "isbn": book.get("isbn"),
-        "available": book.get("available", True)
+        "available": book.get("available", True),
+        "version": "v2"
     }
 
 @books_v2.route('/', methods=['GET'])
