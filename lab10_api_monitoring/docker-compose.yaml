@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: soa-library-prometheus
+    volumes:
+      # Đường dẫn file cấu hình của Prometheus
+      - "D:/CODING/code/python/soa/INT3505E_01_demo/lab10_api_monitoring/prometheus.yml:/etc/prometheus/prometheus.yml"
+      # Volume để lưu trữ dữ liệu Prometheus
+      - prometheus_data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+
+  redis:
+    image: redis
+    container_name: soa-library-redis
+    ports:
+      # Port mặc định của Redis
+      - "6379:6379"
+    volumes:
+      # Volume để lưu trữ dữ liệu Redis bền vững
+      - redis_data:/data
+    restart: unless-stopped
+    # Đặt mạng (nếu bạn sử dụng mạng tùy chỉnh, nhưng ở đây không cần vì docker compose tự tạo mạng)
+
+volumes:
+  prometheus_data:
+  redis_data:

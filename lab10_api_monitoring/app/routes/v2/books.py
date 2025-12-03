@@ -5,6 +5,7 @@ from app.data.sample_data import books
 from pymongo import MongoClient
 from bson import ObjectId
 import logging
+from app import limiter
 
 books_v2 = Blueprint('books_v2', __name__, url_prefix='/v2/books')
 client = MongoClient('mongodb://localhost:27017/')
@@ -58,6 +59,7 @@ def get_books():
 
 
 @books_v2.route('/<string:id>', methods=['GET'])
+@limiter.limit("10 per minute")
 def get_book(id):
     """
     Get a single book by ID
