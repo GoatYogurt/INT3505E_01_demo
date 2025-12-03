@@ -2,6 +2,8 @@ from flask import Flask
 import os
 import logging
 import sys
+from prometheus_flask_exporter import PrometheusMetrics
+from prometheus_client import Gauge, Counter
 
 def create_app():
     app = Flask(__name__)
@@ -22,6 +24,9 @@ def create_app():
     app.logger.setLevel(log_level)
     app.logger.addHandler(console_handler)
     app.logger.addHandler(file_handler)
+
+    # prometheus metrics configuration
+    metrics = PrometheusMetrics(app)
 
     # import and register blueprints
     from app.routes.auth import auth_bp
